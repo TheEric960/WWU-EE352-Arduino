@@ -1,4 +1,4 @@
-// Created by Jack Wilson 5/27/2020 for the EE 352 final project
+// Created by Jack Wilson 5/28/2020 for the EE 352 final project.
 // The goal of this sketch is build an electric compass.
 
 #include <Servo.h>
@@ -7,8 +7,7 @@
 Servo aServo;
 QMC5883L compass;
 
-const bool testing = true;
-
+const bool testing = false;
 int posX, posY, posZ;
 float heading, headingDegrees;
 
@@ -34,7 +33,6 @@ void loop() {
   aServo.write(convHeadToPos(headingDegrees));
   delay(500);
 }
-
 
 // Calculate heading when the magnetometer is level, then correct for signs of axis.
 // This uses the global variables.
@@ -71,7 +69,8 @@ void updateHeadings() {
   }
 }
 
-// convert degrees to servo motor position
+// Convert degrees to servo motor position.
+// The servo flips on the N-S lines.
 float convHeadToPos(float deg) {
   return (deg >= 180) ? deg - 180 : deg ;
 }
