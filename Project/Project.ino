@@ -7,7 +7,11 @@
 Servo aServo;
 QMC5883L compass;
 
-int posX = 0, posY = 0, posZ = 0;
+const bool testing = true;
+
+int posX, posY, posZ;
+float heading, headingDegrees;
+
 
 void setup() {
   // start ports
@@ -25,12 +29,18 @@ void setup() {
 }
 
 void loop() {
-  compass.read(&posX, &posY, &posZ);
+  compass.read(&posX, &posY, &posZ);  // updates variables by reference
+  updateHeadings();
+  aServo.write(convHeadToPos(headingDegrees));
+  delay(500);
+}
 
-  // Calculate heading when the magnetometer is level, then correct for signs of axis.
 
+// Calculate heading when the magnetometer is level, then correct for signs of axis.
+// This uses the global variables.
+void updateHeadings() {
   // Atan2() automatically checks the correct formula taking care of the quadrant you are in
-  float heading = atan2(posY, posX);
+  heading = atan2(posY, posX);
 
   float declinationAngle = 0.2772;  // +15° 53' = 0.2772
   heading += declinationAngle;
@@ -44,18 +54,24 @@ void loop() {
     heading -= 2 * PI;
 
   // Convert radians to degrees for readability.
-  float headingDegrees = heading * 180 / M_PI;
+  headingDegrees = heading * 180 / M_PI;
 
-  Serial.print("x: ");
-  Serial.print(posX);
-  Serial.print("    y: ");
-  Serial.print(posY);
-  Serial.print("    z: ");
-  Serial.print(posZ);
-  Serial.print("    heading: ");
-  Serial.print(heading);
-  Serial.print("    Radius: ");
-  Serial.print(headingDegrees);
-  Serial.println();
-  delay(500);
+  if (testing) {
+    Serial.print("x: ");
+    Serial.print(posX);
+    Serial.print("    y: ");
+    Serial.print(posY);
+    Serial.print("    z: ");
+    Serial.print(posZ);
+    Serial.print("    heading: ");
+    Serial.print(heading);
+    Serial.print("    Radius: ");
+    Serial.print(headingDegrees);
+    Serial.println();
+  }
+}
+
+// convert degrees to servo motor position
+float convHeadToPos(float deg) {
+  return (deg >= 180) ? deg - 180 : deg ;
 }
